@@ -16,7 +16,7 @@ const DashboardPage = ({ searchParams }: DashboardProps) => {
   const { organization } = useOrganization()
 
   return (
-    <div className="h-full">
+    <div className="h-full p-5">
       {!organization && <EmptyOrg />}
       {organization && <BoardList orgId={organization.id} query={searchParams} />}
     </div>
