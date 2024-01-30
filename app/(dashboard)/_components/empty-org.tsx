@@ -1,0 +1,30 @@
+import Image from 'next/image'
+import React from 'react'
+import { CreateOrganization } from '@clerk/nextjs'
+
+import { Button } from '@/components/ui/button'
+import { Dialog, DialogContent, DialogTrigger } from '@/components/ui/dialog'
+
+export const EmptyOrg = () => {
+  return (
+    <div className="flex h-full flex-col items-center justify-center">
+      <Image src={'/images/elements.svg'} alt="empty" height={200} width={200} />
+
+      <h2 className="mt-6 text-2xl font-semibold">Welcome to Board</h2>
+
+      <p className="mt-2 text-sm text-muted-foreground">Create an organization to get started</p>
+
+      <div className="mt-6">
+        <Dialog>
+          <DialogTrigger asChild>
+            <Button size={'lg'}>Create organization</Button>
+          </DialogTrigger>
+
+          <DialogContent className="border-none bg-transparent p-0 md:max-w-[480px] lg:max-w-[500px]">
+            <CreateOrganization />
+          </DialogContent>
+        </Dialog>
+      </div>
+    </div>
+  )
+}
