@@ -59,7 +59,7 @@ export const BoardList = ({ orgId, query }: BoardListProps) => {
         <NewBoardButton orgId={orgId} />
 
         {data.map((board) => (
-          <BoardCard key={board._id} {...board} isFavorite={false} />
+          <BoardCard key={board._id} {...board} isFavorite={board.isFavorite} />
         ))}
       </div>
     </div>
