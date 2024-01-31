@@ -3,6 +3,7 @@
 import Image from 'next/image'
 import { useOrganization } from '@clerk/nextjs'
 import { toast } from 'sonner'
+import { useRouter } from 'next/navigation'
 
 import { api } from '@/convex/_generated/api'
 import { useApiMutation } from '@/hooks/use-api-mutation'
@@ -10,6 +11,7 @@ import { useApiMutation } from '@/hooks/use-api-mutation'
 import { Button } from '@/components/ui/button'
 
 export const EmptyBoards = () => {
+  const router = useRouter()
   const { organization } = useOrganization()
   const { mutate: create, pending } = useApiMutation(api.board.create)
 
@@ -19,8 +21,11 @@ export const EmptyBoards = () => {
 
   const onClick = () => {
     create({ orgId: organization.id, title: 'Untitled' })
-      .then((id) => toast.success('Board created'))
-      .catch((err) => toast.error('Failed to create board'))
+      .then((id) => {
+        toast.success('Board created')
+        router.push(`/board/${id}`)
+      })
+      .catch(() => toast.error('Failed to create board'))
   }
 
   return (

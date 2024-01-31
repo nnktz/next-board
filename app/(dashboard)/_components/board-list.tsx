@@ -21,7 +21,7 @@ interface BoardListProps {
 export const BoardList = ({ orgId, query }: BoardListProps) => {
   const { search, favorites } = query
 
-  const data = useQuery(api.boards.get, { orgId })
+  const data = useQuery(api.boards.get, { orgId, ...query })
 
   if (data === undefined) {
     return (
