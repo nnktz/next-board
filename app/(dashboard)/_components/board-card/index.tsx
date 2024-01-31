@@ -9,6 +9,8 @@ import { Id } from '@/convex/_generated/dataModel'
 import { Overlay } from './overlay'
 import { Footer } from './footer'
 import { Skeleton } from '@/components/ui/skeleton'
+import { Actions } from '@/components/actions'
+import { MoreHorizontal } from 'lucide-react'
 
 interface BoardCardProps {
   _id: Id<'boards'>
@@ -42,6 +44,11 @@ export const BoardCard = ({
         <div className="relative flex-1 bg-amber-50">
           <Image src={imageUrl} alt={title} fill />
           <Overlay />
+          <Actions id={_id} title={title} side="right">
+            <button className="absolute right-1 top-1 px-3 py-2 opacity-0 outline-none transition-opacity group-hover:opacity-100">
+              <MoreHorizontal className="text-white opacity-75 transition-opacity hover:opacity-100" />
+            </button>
+          </Actions>
         </div>
 
         <Footer
