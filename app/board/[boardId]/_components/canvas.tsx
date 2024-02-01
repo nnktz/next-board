@@ -7,7 +7,7 @@ import { Toolbar } from './toolbar'
 export const Canvas = ({ boardId }: { boardId: string }) => {
   return (
     <main className="relative h-full w-full touch-none bg-neutral-100">
-      <Info />
+      <Info boardId={boardId} />
       <Participants />
       <Toolbar />
     </main>
