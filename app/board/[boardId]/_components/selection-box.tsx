@@ -3,7 +3,7 @@
 import { memo } from 'react'
 
 import { useSelf, useStorage } from '@/liveblocks.config'
-import { LayerType, type Side, type XYWH } from '@/types/canvas'
+import { LayerType, Side, type XYWH } from '@/types/canvas'
 import { useSelectionBounds } from '@/hooks/use-selection-bounds'
 
 const HANDLE_WIDTH = 8
@@ -51,6 +51,7 @@ export const SelectionBox = memo(
               }}
               onPointerDown={(e) => {
                 e.preventDefault()
+                onResizeHandlePointerDown(Side.Top + Side.Left, bounds)
               }}
             />
 
@@ -66,6 +67,7 @@ export const SelectionBox = memo(
               }}
               onPointerDown={(e) => {
                 e.preventDefault()
+                onResizeHandlePointerDown(Side.Top, bounds)
               }}
             />
 
@@ -81,6 +83,7 @@ export const SelectionBox = memo(
               }}
               onPointerDown={(e) => {
                 e.preventDefault()
+                onResizeHandlePointerDown(Side.Top + Side.Right, bounds)
               }}
             />
 
@@ -96,6 +99,7 @@ export const SelectionBox = memo(
               }}
               onPointerDown={(e) => {
                 e.preventDefault()
+                onResizeHandlePointerDown(Side.Right, bounds)
               }}
             />
 
@@ -111,6 +115,7 @@ export const SelectionBox = memo(
               }}
               onPointerDown={(e) => {
                 e.preventDefault()
+                onResizeHandlePointerDown(Side.Bottom + Side.Right, bounds)
               }}
             />
 
@@ -126,6 +131,7 @@ export const SelectionBox = memo(
               }}
               onPointerDown={(e) => {
                 e.preventDefault()
+                onResizeHandlePointerDown(Side.Bottom, bounds)
               }}
             />
 
@@ -141,6 +147,7 @@ export const SelectionBox = memo(
               }}
               onPointerDown={(e) => {
                 e.preventDefault()
+                onResizeHandlePointerDown(Side.Bottom + Side.Left, bounds)
               }}
             />
 
@@ -156,6 +163,7 @@ export const SelectionBox = memo(
               }}
               onPointerDown={(e) => {
                 e.preventDefault()
+                onResizeHandlePointerDown(Side.Left, bounds)
               }}
             />
           </>
