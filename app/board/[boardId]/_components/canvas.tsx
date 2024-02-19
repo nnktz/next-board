@@ -30,6 +30,7 @@ import { Toolbar } from './toolbar'
 import { CursorsPresence } from './cursors-presence'
 import { LayerPreview } from './layer-preview'
 import { SelectionBox } from './selection-box'
+import { SelectionTools } from './selection-tools'
 
 const MAX_LAYERS = 100
 
@@ -84,10 +85,10 @@ export const Canvas = ({ boardId }: { boardId: string }) => {
 
       const offset = { x: point.x - canvasState.current.x, y: point.y - canvasState.current.y }
 
-      const liveLayer = storage.get('layers')
+      const liveLayers = storage.get('layers')
 
       for (const id of self.presence.selection) {
-        const layer = liveLayer.get(id)
+        const layer = liveLayers.get(id)
 
         if (layer) {
           layer.update({
@@ -115,8 +116,8 @@ export const Canvas = ({ boardId }: { boardId: string }) => {
       }
 
       const bounds = resizeBounds(canvasState.initialBounds, canvasState.corner, point)
-      const liveLayer = storage.get('layers')
-      const layer = liveLayer.get(self.presence.selection[0])
+      const liveLayers = storage.get('layers')
+      const layer = liveLayers.get(self.presence.selection[0])
 
       if (layer) {
         layer.update(bounds)
@@ -238,6 +239,8 @@ export const Canvas = ({ boardId }: { boardId: string }) => {
         undo={history.undo}
         redo={history.redo}
       />
+      <SelectionTools camera={camera} setLastUsedColor={() => {}} />
+
       <svg
         className="h-[100vh] w-[100vw]"
         onWheel={onWheel}
