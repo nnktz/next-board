@@ -1,6 +1,6 @@
 import { LiveList, LiveMap, LiveObject, createClient } from '@liveblocks/client'
 import { createRoomContext } from '@liveblocks/react'
-import { Layer } from './types/canvas'
+import type { Color, Layer } from './types/canvas'
 
 const client = createClient({
   // publicApiKey: 'pk_dev_2LLdOJ2bWC3JtIfugpQpdFBSrJBlrr9UyjaZtmNoCk_O0ncZNiZS9QbcwnxpPzBs',
@@ -14,6 +14,8 @@ const client = createClient({
 type Presence = {
   cursor: { x: number; y: number } | null
   selection: string[]
+  pencilDraft: [x: number, y: number, pressure: number][] | null
+  penColor: Color | null
 }
 
 // Optionally, Storage represents the shared document that persists in the

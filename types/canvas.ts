@@ -64,7 +64,7 @@ export type PathLayer = {
   height: number
   width: number
   fill: Color
-  point?: number[][]
+  points: number[][]
   value?: string
 }
 
