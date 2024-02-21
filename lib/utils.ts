@@ -33,7 +33,12 @@ export function colorToCss(color: Color) {
 }
 
 export function resizeBounds(bounds: XYWH, corner: Side, point: Point): XYWH {
-  const result = { x: bounds.x, y: bounds.y, width: bounds.width, height: bounds.height }
+  const result = {
+    x: bounds.x,
+    y: bounds.y,
+    width: bounds.width,
+    height: bounds.height,
+  }
 
   if ((corner & Side.Left) === Side.Left) {
     result.x = Math.min(point.x, bounds.x + bounds.width)
@@ -95,7 +100,7 @@ export function findIntersectingLayersWithRectangle(
   return ids
 }
 
-export function getContractingTextColor(color: Color) {
+export function getContrastingTextColor(color: Color) {
   const luminance = 0.299 * color.r + 0.587 * color.g + 0.114 * color.b
 
   return luminance > 182 ? 'black' : 'white'
@@ -143,9 +148,7 @@ export function penPointsToPathLayer(points: number[][], color: Color): PathLaye
 }
 
 export function getSvgPathFromStroke(stroke: number[][]) {
-  if (!stroke.length) {
-    return ''
-  }
+  if (!stroke.length) return ''
 
   const d = stroke.reduce(
     (acc, [x0, y0], i, arr) => {

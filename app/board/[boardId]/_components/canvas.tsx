@@ -46,18 +46,23 @@ import { Path } from './path'
 const MAX_LAYERS = 100
 
 export const Canvas = ({ boardId }: { boardId: string }) => {
-  const [canvasState, setCanvasState] = useState<CanvasState>({ mode: CanvasMode.None })
-  const [camera, setCamera] = useState<Camera>({ x: 0, y: 0 })
-  const [lastUsedColor, setLastUsedColor] = useState<Color>({ r: 0, g: 0, b: 0 })
-
   const layerIds = useStorage((root) => root.layerIds)
+
   const pencilDraft = useSelf((me) => me.presence.pencilDraft)
+  const [canvasState, setCanvasState] = useState<CanvasState>({
+    mode: CanvasMode.None,
+  })
+  const [camera, setCamera] = useState<Camera>({ x: 0, y: 0 })
+  const [lastUsedColor, setLastUsedColor] = useState<Color>({
+    r: 0,
+    g: 0,
+    b: 0,
+  })
 
   useDisableScrollBounce()
-
   const history = useHistory()
-  const canRedo = useCanRedo()
   const canUndo = useCanUndo()
+  const canRedo = useCanRedo()
 
   const insertLayer = useMutation(
     (
@@ -66,7 +71,6 @@ export const Canvas = ({ boardId }: { boardId: string }) => {
       position: Point,
     ) => {
       const liveLayers = storage.get('layers')
-
       if (liveLayers.size >= MAX_LAYERS) {
         return
       }
@@ -91,13 +95,16 @@ export const Canvas = ({ boardId }: { boardId: string }) => {
     [lastUsedColor],
   )
 
-  const translateSelectedLayer = useMutation(
+  const translateSelectedLayers = useMutation(
     ({ storage, self }, point: Point) => {
       if (canvasState.mode !== CanvasMode.Translating) {
         return
       }
 
-      const offset = { x: point.x - canvasState.current.x, y: point.y - canvasState.current.y }
+      const offset = {
+        x: point.x - canvasState.current.x,
+        y: point.y - canvasState.current.y,
+      }
 
       const liveLayers = storage.get('layers')
 
@@ -126,7 +133,11 @@ export const Canvas = ({ boardId }: { boardId: string }) => {
   const updateSelectionNet = useMutation(
     ({ storage, setMyPresence }, current: Point, origin: Point) => {
       const layers = storage.get('layers').toImmutable()
-      setCanvasState({ mode: CanvasMode.SelectionNet, origin, current })
+      setCanvasState({
+        mode: CanvasMode.SelectionNet,
+        origin,
+        current,
+      })
 
       const ids = findIntersectingLayersWithRectangle(layerIds, layers, origin, current)
 
@@ -145,14 +156,23 @@ export const Canvas = ({ boardId }: { boardId: string }) => {
     }
   }, [])
 
-  const startDrawing = useMutation(
-    ({ setMyPresence }, point: Point, pressure: number) => {
+  const continueDrawing = useMutation(
+    ({ self, setMyPresence }, point: Point, e: React.PointerEvent) => {
+      const { pencilDraft } = self.presence
+
+      if (canvasState.mode !== CanvasMode.Pencil || e.buttons !== 1 || pencilDraft == null) {
+        return
+      }
+
       setMyPresence({
-        pencilDraft: [[point.x, point.y, pressure]],
-        penColor: lastUsedColor,
+        cursor: point,
+        pencilDraft:
+          pencilDraft.length === 1 && pencilDraft[0][0] === point.x && pencilDraft[0][1] === point.y
+            ? pencilDraft
+            : [...pencilDraft, [point.x, point.y, e.pressure]],
       })
     },
-    [lastUsedColor],
+    [canvasState.mode],
   )
 
   const insertPath = useMutation(
@@ -177,23 +197,14 @@ export const Canvas = ({ boardId }: { boardId: string }) => {
     [lastUsedColor],
   )
 
-  const continueDrawing = useMutation(
-    ({ self, setMyPresence }, point: Point, e: React.PointerEvent) => {
-      const { pencilDraft } = self.presence
-
-      if (canvasState.mode !== CanvasMode.Pencil || e.buttons !== 1 || pencilDraft == null) {
-        return
-      }
-
+  const startDrawing = useMutation(
+    ({ setMyPresence }, point: Point, pressure: number) => {
       setMyPresence({
-        cursor: point,
-        pencilDraft:
-          pencilDraft.length === 1 && pencilDraft[0][0] === point.x && pencilDraft[0][1] === point.y
-            ? pencilDraft
-            : [...pencilDraft, [point.x, point.y, e.pressure]],
+        pencilDraft: [[point.x, point.y, pressure]],
+        penColor: lastUsedColor,
       })
     },
-    [canvasState.mode],
+    [lastUsedColor],
   )
 
   const resizeSelectedLayer = useMutation(
@@ -203,6 +214,7 @@ export const Canvas = ({ boardId }: { boardId: string }) => {
       }
 
       const bounds = resizeBounds(canvasState.initialBounds, canvasState.corner, point)
+
       const liveLayers = storage.get('layers')
       const layer = liveLayers.get(self.presence.selection[0])
 
@@ -216,13 +228,20 @@ export const Canvas = ({ boardId }: { boardId: string }) => {
   const onResizeHandlePointerDown = useCallback(
     (corner: Side, initialBounds: XYWH) => {
       history.pause()
-      setCanvasState({ mode: CanvasMode.Resizing, initialBounds, corner })
+      setCanvasState({
+        mode: CanvasMode.Resizing,
+        initialBounds,
+        corner,
+      })
     },
     [history],
   )
 
   const onWheel = useCallback((e: React.WheelEvent) => {
-    setCamera((camera) => ({ x: camera.x - e.deltaX, y: camera.y - e.deltaY }))
+    setCamera((camera) => ({
+      x: camera.x - e.deltaX,
+      y: camera.y - e.deltaY,
+    }))
   }, [])
 
   const onPointerMove = useMutation(
@@ -236,7 +255,7 @@ export const Canvas = ({ boardId }: { boardId: string }) => {
       } else if (canvasState.mode === CanvasMode.SelectionNet) {
         updateSelectionNet(current, canvasState.origin)
       } else if (canvasState.mode === CanvasMode.Translating) {
-        translateSelectedLayer(current)
+        translateSelectedLayers(current)
       } else if (canvasState.mode === CanvasMode.Resizing) {
         resizeSelectedLayer(current)
       } else if (canvasState.mode === CanvasMode.Pencil) {
@@ -246,13 +265,13 @@ export const Canvas = ({ boardId }: { boardId: string }) => {
       setMyPresence({ cursor: current })
     },
     [
+      continueDrawing,
       camera,
       canvasState,
       resizeSelectedLayer,
-      translateSelectedLayer,
+      translateSelectedLayers,
       startMultiSelection,
       updateSelectionNet,
-      continueDrawing,
     ],
   )
 
@@ -284,7 +303,9 @@ export const Canvas = ({ boardId }: { boardId: string }) => {
 
       if (canvasState.mode === CanvasMode.None || canvasState.mode === CanvasMode.Pressing) {
         unselectLayers()
-        setCanvasState({ mode: CanvasMode.None })
+        setCanvasState({
+          mode: CanvasMode.None,
+        })
       } else if (canvasState.mode === CanvasMode.Pencil) {
         insertPath()
       } else if (canvasState.mode === CanvasMode.Inserting) {
@@ -297,7 +318,7 @@ export const Canvas = ({ boardId }: { boardId: string }) => {
 
       history.resume()
     },
-    [camera, canvasState, history, setCanvasState, insertLayer, unselectLayers, insertPath],
+    [setCanvasState, camera, canvasState, history, insertLayer, unselectLayers, insertPath],
   )
 
   const selections = useOthersMapped((other) => other.presence.selection)
@@ -340,21 +361,19 @@ export const Canvas = ({ boardId }: { boardId: string }) => {
   useEffect(() => {
     function onKeyDown(e: KeyboardEvent) {
       switch (e.key) {
-        case 'Backspace':
-          deleteLayers()
-          break
-
-        case 'z':
-          if ((e.ctrlKey || e.metaKey) && !e.shiftKey) {
-            history.undo()
-          }
-          break
-
-        case 'y':
+        // case "Backspace":
+        //   deleteLayers();
+        //   break;
+        case 'z': {
           if (e.ctrlKey || e.metaKey) {
-            history.redo()
+            if (e.shiftKey) {
+              history.redo()
+            } else {
+              history.undo()
+            }
+            break
           }
-          break
+        }
       }
     }
 
@@ -378,16 +397,19 @@ export const Canvas = ({ boardId }: { boardId: string }) => {
         redo={history.redo}
       />
       <SelectionTools camera={camera} setLastUsedColor={setLastUsedColor} />
-
       <svg
         className="h-[100vh] w-[100vw]"
         onWheel={onWheel}
         onPointerMove={onPointerMove}
         onPointerLeave={onPointerLeave}
-        onPointerUp={onPointerUp}
         onPointerDown={onPointerDown}
+        onPointerUp={onPointerUp}
       >
-        <g style={{ transform: `translate(${camera.x}px), ${camera.y}px` }}>
+        <g
+          style={{
+            transform: `translate(${camera.x}px, ${camera.y}px)`,
+          }}
+        >
           {layerIds.map((layerId) => (
             <LayerPreview
               key={layerId}

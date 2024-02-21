@@ -2,13 +2,13 @@
 
 import { memo } from 'react'
 
-import { useStorage } from '@/liveblocks.config'
-import { LayerType } from '@/types/canvas'
 import { colorToCss } from '@/lib/utils'
+import { LayerType } from '@/types/canvas'
+import { useStorage } from '@/liveblocks.config'
 
-import { Rectangle } from './rectangle'
-import { Ellipse } from './ellipse'
 import { Text } from './text'
+import { Ellipse } from './ellipse'
+import { Rectangle } from './rectangle'
 import { Note } from './note'
 import { Path } from './path'
 
@@ -31,15 +31,14 @@ export const LayerPreview = memo(
         return (
           <Path
             key={id}
+            points={layer.points}
+            onPointerDown={(e) => onLayerPointerDown(e, id)}
             x={layer.x}
             y={layer.y}
             fill={layer.fill ? colorToCss(layer.fill) : '#000'}
-            points={layer.points}
-            onPointerDown={(e) => onLayerPointerDown(e, id)}
             stroke={selectionColor}
           />
         )
-
       case LayerType.Note:
         return (
           <Note
@@ -49,7 +48,6 @@ export const LayerPreview = memo(
             selectionColor={selectionColor}
           />
         )
-
       case LayerType.Text:
         return (
           <Text
@@ -59,7 +57,6 @@ export const LayerPreview = memo(
             selectionColor={selectionColor}
           />
         )
-
       case LayerType.Ellipse:
         return (
           <Ellipse
@@ -69,7 +66,6 @@ export const LayerPreview = memo(
             selectionColor={selectionColor}
           />
         )
-
       case LayerType.Rectangle:
         return (
           <Rectangle
@@ -79,11 +75,11 @@ export const LayerPreview = memo(
             selectionColor={selectionColor}
           />
         )
-
       default:
+        console.warn('Unknown layer type')
         return null
     }
   },
 )
 
-LayerPreview.displayName = 'Layer Preview'
+LayerPreview.displayName = 'LayerPreview'
